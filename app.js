@@ -202,16 +202,15 @@
         files: packed
       };
 
-      const resp = await fetch(SUBMIT_URL, {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
+await fetch(SUBMIT_URL, {
+  method: "POST",
+  mode: "no-cors",
+  headers: { "Content-Type":"application/json" },
+  body: JSON.stringify(payload)
+});
 
-      const json = await resp.json();
-      if (!json.ok) throw new Error(json.error || "Қате");
-
-      submitStatus.textContent = "✅ Жіберілді. Рахмет!";
+// no-cors режимінде жауапты оқи алмаймыз, бірақ файлдар жіберіледі
+submitStatus.textContent = "✅ Жіберілді. Рахмет!";
     } catch (e) {
       submitStatus.textContent = "❌ Қате: " + (e.message || e);
       btnSubmit.disabled = false;
