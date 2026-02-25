@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ТАУ — №3 практикалық жұмыс (QR)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>ТАУ · №3 практикалық жұмыс — жиіліктік сипаттамалар</h1>
+      <p class="muted">
+        Бір QR арқылы кіріңіз. ФИО мен топты енгізіңіз — жүйе сізге <b>кездейсоқ (бірақ тұрақты)</b> түрде:
+        <b>1 буын</b> + <b>1 тапсырма (АЖС/ФЖС/АФЖС)</b> + <b>1 теориялық сұрақ</b> береді.
+      </p>
+    </header>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <label>ФИО</label>
+          <input id="fioInput" type="text" placeholder="Фамилия Имя Отчество" autocomplete="name" />
+          <div class="hint">ФИО дұрыс жазылсын — тапсырма осы дерекке байланысты бекітіледі.</div>
+        </div>
+        <div>
+          <label>Топ</label>
+          <input id="groupInput" type="text" placeholder="Мысалы: АУ-23-1" autocomplete="organization" />
+          <div class="hint">Топ та тапсырманы бекітуге қатысады.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnGet">Тапсырманы алу</button>
+        <button id="btnPrint" class="secondary" disabled>Басып шығару / PDF</button>
+      </div>
+
+      <div id="error" class="error" hidden></div>
+      <div id="ok" class="ok" hidden></div>
+    </section>
+
+    <section id="taskCard" class="card" hidden>
+      <div class="taskHeader">
+        <div>
+          <h2 id="taskTitle" style="margin:0 0 6px;"></h2>
+          <div class="muted" id="taskMeta"></div>
+        </div>
+        <div class="badge" id="badgeVariant"></div>
+      </div>
+
+      <div id="taskBody"></div>
+
+      <hr />
+
+      <h3 style="margin-top:0;">Жұмысты жіберу (фото/PDF)</h3>
+      <p class="muted">
+        1–6 файл жүктеңіз: дәптер/парақтағы есеп + графиктер (фото) немесе PDF.
+      </p>
+
+      <input id="filesInput" type="file" accept="image/*,application/pdf" multiple />
+
+      <div class="actions">
+        <button id="btnSubmit" class="secondary" disabled>Жіберу</button>
+      </div>
+
+      <div id="submitStatus" class="muted"></div>
+
+      <details style="margin-top:12px;">
+        <summary><b>Ескерту</b></summary>
+        <ul>
+          <li>Егер мұғалім Web App URL қоймаса, сайт файл жүктей алмайды — онда тапсырма шыққан соң файлдарды мұғалім айтқан арнаға (email/Telegram/Teams) жіберіңіз.</li>
+          <li>Файл атауы: <code>FIO_Group_TAU3</code> сияқты болғаны жақсы.</li>
+        </ul>
+      </details>
+    </section>
+
+    <footer class="muted" style="margin-top:18px;">
+      © ТАУ · QR тапсырма генераторы
+    </footer>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="tasks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
