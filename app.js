@@ -91,9 +91,12 @@
     const now = new Date();
     const isT2 = a.taskKey === "t2";
 
-    const linkTitle = isT2
-      ? "Екі инерциялық буын (K, T₁, T₂)"
-      : "1-ретті апериодтық буын (K, T)";
+    const linkTitle =
+        a.taskKey === "t2"
+    ? "Екі инерциялық буын (K, T₁, T₂)"
+    : a.taskKey === "t3"
+      ? "Интегралдаушы буын (K, T)  →  W(s)=K/(s(Ts+1))"
+      : "1-ретті апериодтық буын (K, T)  →  W(s)=K/(Ts+1)";
 
     const p = a.params;
     const paramsText = isT2
@@ -105,9 +108,9 @@
     taskMeta.textContent = `${fio} · ${group} · ${now.toLocaleString()}`;
 
     const plotHint = a.plotType === "АЖС"
-      ? "A(ω)=|W(jω)|=√(Re(ω)^2+Im(ω)^2) графигін салыңыз."
+      ? "A(ω) графигін салыңыз."
       : a.plotType === "ФЖС"
-        ? "φ(ω)=arg W(jω)=atan2(Im(ω),Re(ω)) графигін салыңыз."
+        ? "φ(ω) графигін салыңыз."
         : "Комплексті жазықтықта (Re(ω), Im(ω)) нүктелерінің траекториясын салыңыз (АФЖС).";
 
     taskBody.innerHTML = `
