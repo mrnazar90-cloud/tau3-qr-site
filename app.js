@@ -119,9 +119,16 @@
       <p><b>${escapeHtml(a.plotType)}</b> салу (тек біреуін).</p>
       <p class="muted">${escapeHtml(plotHint)}</p>
 
-      <h3>3) Қысқа теория (сұрақ-жауап)</h3>
+      <h3>3) Қысқа теория</h3>
       <p><b>Сұрақ:</b> ${escapeHtml(a.qa.q)}</p>
-      <p><b>Жауап:</b> ${escapeHtml(a.qa.a)}</p>
+
+      <div id="theoryAnswerBox" hidden style="margin-top:10px;">
+        <p><b>Жауап:</b> ${escapeHtml(a.qa.a)}</p>
+      </div>
+
+      <div class="hint">
+        Жауап тек жұмысты жібергеннен кейін ашылады.
+      </div>
 
       <details style="margin-top:12px;">
         <summary><b>Қысқа алгоритм</b> (қалай бастау керек)</summary>
@@ -211,6 +218,8 @@ await fetch(SUBMIT_URL, {
 
 // no-cors режимінде жауапты оқи алмаймыз, бірақ файлдар жіберіледі
 submitStatus.textContent = "✅ Жіберілді. Рахмет!";
+      const box = document.getElementById("theoryAnswerBox");
+if (box) box.hidden = false;
     } catch (e) {
       submitStatus.textContent = "❌ Қате: " + (e.message || e);
       btnSubmit.disabled = false;
