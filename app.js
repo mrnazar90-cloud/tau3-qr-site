@@ -89,28 +89,28 @@
 
   function renderAssignment(fio, group, a) {
     const now = new Date();
-    const isT2 = a.taskKey === "t2";
 
-    const linkTitle =
-        a.taskKey === "t2"
-    ? "Екі инерциялық буын (K, T₁, T₂)"
-    : a.taskKey === "t3"
-      ? "Интегралдаушы буын (K, T)  →  W(s)=K/(s(Ts+1))"
-      : "1-ретті апериодтық буын (K, T)  →  W(s)=K/(Ts+1)";
+    const isT2 = a.taskKey === "t2";
+    const isT3 = a.taskKey === "t3";
+
+    const linkTitle = isT2
+      ? "Екі инерциялық буын (K, T₁, T₂) → W(s)=K/((T₁s+1)(T₂s+1))"
+      : isT3
+        ? "Интегралдаушы буын (K, T) → W(s)=K/(s(Ts+1))"
+        : "1-ретті апериодтық буын (K, T) → W(s)=K/(Ts+1)";
 
     const p = a.params;
     const paramsText = isT2
       ? `K=${p.K}, T₁=${p.T1}, T₂=${p.T2}`
       : `K=${p.K}, T=${p.T}`;
-
     taskTitle.textContent = "Жеке тапсырма (№3 практикалық жұмыс)";
     badgeVariant.textContent = `Нұсқа: ${a.variantN}`;
     taskMeta.textContent = `${fio} · ${group} · ${now.toLocaleString()}`;
 
     const plotHint = a.plotType === "АЖС"
-      ? "A(ω) графигін салыңыз."
+      ? "A(ω)=|W(jω)|=√(Re(ω)^2+Im(ω)^2) графигін салыңыз."
       : a.plotType === "ФЖС"
-        ? "φ(ω) графигін салыңыз."
+        ? "φ(ω)=arg W(jω)=atan2(Im(ω),Re(ω)) графигін салыңыз."
         : "Комплексті жазықтықта (Re(ω), Im(ω)) нүктелерінің траекториясын салыңыз (АФЖС).";
 
     taskBody.innerHTML = `
@@ -129,9 +129,9 @@
         <p><b>Жауап:</b> ${escapeHtml(a.qa.a)}</p>
       </div>
 
-      <div class="hint">
-        Жауап тек жұмысты жібергеннен кейін ашылады.
-      </div>
+      <div class="hint">Жауап тек жұмысты жібергеннен кейін ашылады.</div>
+
+<div id="theoryUnlockedMsg" class="ok" hidden>✅ Жауап ашылды.</div>
 
       <details style="margin-top:12px;">
         <summary><b>Қысқа алгоритм</b> (қалай бастау керек)</summary>
@@ -212,17 +212,24 @@
         files: packed
       };
 
-await fetch(SUBMIT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  headers: { "Content-Type":"application/json" },
-  body: JSON.stringify(payload)
-});
+      const resp = await fetch(SUBMIT_URL, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
 
-// no-cors режимінде жауапты оқи алмаймыз, бірақ файлдар жіберіледі
-submitStatus.textContent = "✅ Жіберілді. Рахмет!";
+      const json = await resp.json();
+      if (!json.ok) throw new Error(json.error || "Қате");
+
+      submitStatus.textContent = "✅ Жіберілді. Рахмет!";
+
       const box = document.getElementById("theoryAnswerBox");
-if (box) box.hidden = false;
+      if (box) box.hidden = false;
+      const msg = document.getElementById("theoryUnlockedMsg");
+      if (msg) msg.hidden = false;
+
+      const box = document.getElementById("theoryAnswerBox");
+      if (box) box.hidden = false;
     } catch (e) {
       submitStatus.textContent = "❌ Қате: " + (e.message || e);
       btnSubmit.disabled = false;
