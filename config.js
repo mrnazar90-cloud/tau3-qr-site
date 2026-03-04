@@ -1,7 +1,15 @@
 // Конфигурация
 // 1) Google Apps Script Web App URL-ін осында қойыңыз (Deploy -> Web app URL)
 // Мысал: const SUBMIT_URL = "https://script.google.com/macros/s/....../exec";
-const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbyLDPgng4QXNsQ9MXCJ9e77dA0zhrqbTgEVOTTSkflMakjEew4a3oo7GBFpnzWmkiA/exec";
+const SUBMIT_URL = "";
 
 // 2) (Қаласаңыз) байланыс үшін мұғалімнің email/telegram
 const TEACHER_CONTACT = "Мұғалімге байланыс: ...";
+
+// 3) Дедлайн (уақыттан кейін сайт "жабық" болады)
+// ISO форматта таймзонамен бірге берген дұрыс:
+// Мысалы Қазақстан үшін: "2026-03-20T23:59:00+05:00"
+const DEADLINE_ISO = ""; // бос қалса — дедлайн жоқ
+
+// 4) Сабақ ішіндегі таймер (минут). Тапсырманы алған сәттен бастап есептеледі.
+const SESSION_MINUTES = 20;

@@ -14,6 +14,10 @@
         Бір QR арқылы кіріңіз. ФИО мен топты енгізіңіз — жүйе сізге <b>кездейсоқ (бірақ тұрақты)</b> түрде:
         <b>1 буын</b> + <b>1 тапсырма (АЖС/ФЖС/АФЖС)</b> + <b>1 теориялық сұрақ</b> береді.
       </p>
+      <div id="deadlineBanner" class="card" style="display:none; border-color: rgba(255,107,107,.35);">
+      <b>⛔ Жабық</b>
+      <div class="muted" id="deadlineText"></div>
+    </div>
     </header>
 
     <section class="card">
@@ -48,6 +52,10 @@
         <div class="badge" id="badgeVariant"></div>
       </div>
 
+      <div id="timerBox" class="card" style="margin:12px 0; padding:12px; border-color: rgba(255,255,255,.16);">
+        <b>⏳ Уақыт қалды:</b> <span id="timerText">--:--</span>
+        <div class="muted" id="timerHint" style="margin-top:6px;">Таймер тапсырманы алған сәттен бастап жүреді.</div>
+      </div>
       <div id="taskBody"></div>
 
       <hr />

@@ -17,6 +17,10 @@
   const btnSubmit = $("btnSubmit");
   const submitStatus = $("submitStatus");
 
+  const timerBox = $("timerBox");
+  const timerText = $("timerText");
+  const timerHint = $("timerHint");
+
   // -------- helpers --------
   function showError(msg) {
     errorBox.textContent = msg || "";
@@ -58,7 +62,121 @@
     return (s || "").trim().replace(/\s+/g, " ");
   }
 
-  // Main assignment pick:
+  
+
+  function parseDeadline(){
+    try {
+      if (typeof DEADLINE_ISO === "undefined" || !DEADLINE_ISO) return null;
+      const d = new Date(DEADLINE_ISO);
+      if (isNaN(d.getTime())) return null;
+      return d;
+    } catch { return null; }
+  }
+
+  function isDeadlinePassed(){
+    const d = parseDeadline();
+    if (!d) return false;
+    return Date.now() > d.getTime();
+  }
+
+
+  // -------- session timer (per student) --------
+  function getSessionKey(fio, group){
+    return `TAU3_SESSION_${normalize(fio)}__${normalize(group)}`;
+  }
+
+  function getSessionMinutes(){
+    try {
+      if (typeof SESSION_MINUTES === "undefined" || !SESSION_MINUTES) return 20;
+      const m = Number(SESSION_MINUTES);
+      return Number.isFinite(m) && m > 0 ? m : 20;
+    } catch { return 20; }
+  }
+
+  function loadSession(fio, group){
+    try {
+      const raw = localStorage.getItem(getSessionKey(fio, group));
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || !obj.startMs) return null;
+      return obj;
+    } catch { return null; }
+  }
+
+  function saveSession(fio, group, obj){
+    try { localStorage.setItem(getSessionKey(fio, group), JSON.stringify(obj)); } catch {}
+  }
+
+  function remainingMsForSession(fio, group){
+    const s = loadSession(fio, group);
+    if (!s) return null;
+    const total = getSessionMinutes() * 60 * 1000;
+    const left = (s.startMs + total) - Date.now();
+    return left;
+  }
+
+  let timerInterval = null;
+
+  function stopTimer(){
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  }
+
+  function formatMs(ms){
+    const t = Math.max(0, Math.floor(ms/1000));
+    const mm = String(Math.floor(t/60)).padStart(2,"0");
+    const ss = String(t%60).padStart(2,"0");
+    return `${mm}:${ss}`;
+  }
+
+  function lockDueToTimer(){
+    btnSubmit.disabled = true;
+    filesInput.disabled = true;
+    submitStatus.textContent = "⛔ Уақыт аяқталды. Жіберу жабық.";
+    if (timerHint) timerHint.textContent = "Уақыт аяқталды — жіберу мүмкін емес.";
+  }
+
+  function tickTimer(fio, group){
+    const left = remainingMsForSession(fio, group);
+    if (left === null) {
+      if (timerText) timerText.textContent = "--:--";
+      return;
+    }
+    if (timerText) timerText.textContent = formatMs(left);
+    if (left <= 0){
+      stopTimer();
+      lockDueToTimer();
+    }
+  }
+
+  // Fire-and-forget start registration on server (for strict server-side enforcement)
+  async function registerStartOnServer(payload){
+    try {
+      if (typeof SUBMIT_URL === "undefined" || !SUBMIT_URL) return;
+      await fetch(SUBMIT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ action:"start", ...payload })
+      });
+    } catch {}
+  }
+
+  function showClosedBanner(){
+    const banner = document.getElementById("deadlineBanner");
+    const txt = document.getElementById("deadlineText");
+    const d = parseDeadline();
+    if (!banner) return;
+    if (!d) { banner.style.display = "none"; return; }
+    banner.style.display = "block";
+    if (Date.now() > d.getTime()) {
+      banner.style.borderColor = "rgba(255,107,107,.35)";
+      txt.textContent = `Дедлайн өтті: ${d.toLocaleString()}. Тапсырма алу және жіберу жабық.`;
+    } else {
+      banner.style.borderColor = "rgba(122,162,255,.18)";
+      txt.textContent = `Дедлайн: ${d.toLocaleString()}. Осы уақытқа дейін жіберіңіз.`;
+    }
+  }
+// Main assignment pick:
   // 1) Variant row (1..30) from hash(FIO|GROUP) -> stable
   // 2) One link type (t1/t2/t3) randomly (stable)
   // 3) One plot type (АЖС/ФЖС/АФЖС) randomly (stable)
@@ -144,6 +262,7 @@
       </details>
     `;
 
+    if (timerBox) timerBox.style.display = "block";
     taskCard.hidden = false;
     btnPrint.disabled = false;
 
@@ -177,6 +296,18 @@
   });
 
   btnSubmit.addEventListener("click", async () => {
+    if (isDeadlinePassed()) {
+      submitStatus.textContent = "⛔ Дедлайн өтті. Жіберу жабық.";
+      return;
+    }
+
+    // timer enforcement (client-side)
+    const left = remainingMsForSession(fioInput.value, groupInput.value);
+    if (left !== null && left <= 0) {
+      submitStatus.textContent = "⛔ Уақыт аяқталды. Жіберу жабық.";
+      lockDueToTimer();
+      return;
+    }
     submitStatus.textContent = "";
     const fio = normalize(fioInput.value);
     const group = normalize(groupInput.value);
@@ -203,30 +334,37 @@
       const packed = [];
       for (const f of files) packed.push(await fileToBase64(f));
 
+      const session = loadSession(fio, group);
       const payload = {
+        action: "submit",
         fio, group,
         variant: a.variantN,
         linkType: a.taskKey,
         plotType: a.plotType,
         theoryQ: a.qa?.q || "",
+        startMs: session?.startMs || null,
+        minutes: getSessionMinutes(),
         files: packed
       };
 
-await fetch(SUBMIT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  headers: { "Content-Type":"application/json" },
-  body: JSON.stringify(payload)
-});
+      const resp = await fetch(SUBMIT_URL, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
 
-// no-cors режимінде жауапты оқи алмаймыз, бірақ файлдар жіберіледі
-submitStatus.textContent = "✅ Жіберілді. Рахмет!";
+      const json = await resp.json();
+      if (!json.ok) throw new Error(json.error || "Қате");
+
+      submitStatus.textContent = "✅ Жіберілді. Рахмет!";
 
       const box = document.getElementById("theoryAnswerBox");
       if (box) box.hidden = false;
       const msg = document.getElementById("theoryUnlockedMsg");
       if (msg) msg.hidden = false;
 
+      const box = document.getElementById("theoryAnswerBox");
+      if (box) box.hidden = false;
     } catch (e) {
       submitStatus.textContent = "❌ Қате: " + (e.message || e);
       btnSubmit.disabled = false;
@@ -235,6 +373,11 @@ submitStatus.textContent = "✅ Жіберілді. Рахмет!";
 
   // -------- events --------
   btnGet.addEventListener("click", () => {
+    if (isDeadlinePassed()) {
+      showError("⛔ Дедлайн өтті. Тапсырма алу жабық.");
+      showOk("");
+      return;
+    }
     showError("");
     showOk("");
 
@@ -248,10 +391,27 @@ submitStatus.textContent = "✅ Жіберілді. Рахмет!";
     if (!a) return showError("Деректер табылмады (tasks.js).");
 
     renderAssignment(fio, group, a);
+
+    // start session timer on first 'get task'
+    const existingSession = loadSession(fio, group);
+    if (!existingSession) {
+      const startMs = Date.now();
+      saveSession(fio, group, { startMs });
+      registerStartOnServer({ fio, group, startMs, minutes: getSessionMinutes() });
+    }
+    stopTimer();
+    timerInterval = setInterval(() => tickTimer(fio, group), 1000);
+    tickTimer(fio, group);
     showOk("Тапсырма бекітілді. Енді орындап, файл жүктеп жіберіңіз.");
   });
 
   btnPrint.addEventListener("click", () => window.print());
+
+  showClosedBanner();
+  if (isDeadlinePassed()) {
+    btnGet.disabled = true;
+    btnSubmit.disabled = true;
+  }
 
   // restore
   try {
@@ -260,6 +420,10 @@ submitStatus.textContent = "✅ Жіберілді. Рахмет!";
     if (last?.group) groupInput.value = last.group;
     if (last?.assignment) {
       renderAssignment(last.fio, last.group, last.assignment);
+      // resume timer if session exists
+      stopTimer();
+      timerInterval = setInterval(() => tickTimer(last.fio, last.group), 1000);
+      tickTimer(last.fio, last.group);
       showOk("Алдыңғы тапсырмаңыз қайта ашылды (осы құрылғыда).");
     }
   } catch {}
