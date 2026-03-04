@@ -12,4 +12,4 @@ const TEACHER_CONTACT = "Мұғалімге байланыс: ...";
 const DEADLINE_ISO = ""; // бос қалса — дедлайн жоқ
 
 // 4) Сабақ ішіндегі таймер (минут). Тапсырманы алған сәттен бастап есептеледі.
-const SESSION_MINUTES = 20;
+const SESSION_MINUTES = 25;
