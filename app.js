@@ -227,8 +227,6 @@ submitStatus.textContent = "✅ Жіберілді. Рахмет!";
       const msg = document.getElementById("theoryUnlockedMsg");
       if (msg) msg.hidden = false;
 
-      const box = document.getElementById("theoryAnswerBox");
-      if (box) box.hidden = false;
     } catch (e) {
       submitStatus.textContent = "❌ Қате: " + (e.message || e);
       btnSubmit.disabled = false;
