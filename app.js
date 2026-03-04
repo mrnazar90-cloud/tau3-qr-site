@@ -152,11 +152,10 @@
   async function registerStartOnServer(payload){
     try {
       if (typeof SUBMIT_URL === "undefined" || !SUBMIT_URL) return;
-      aawait fetch(SUBMIT_URL, {
+await fetch(SUBMIT_URL, {
   method: "POST",
   mode: "no-cors",
-  headers: { "Content-Type":"application/json" },
-  body: JSON.stringify(payload)
+  body: JSON.stringify({ action:"start", ...payload })
 });
 
 submitStatus.textContent = "✅ Жіберілді. Егер журналда шықпаса, файл көлемін кішірейтіңіз.";
