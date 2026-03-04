@@ -1,7 +1,7 @@
 // Конфигурация
 // 1) Google Apps Script Web App URL-ін осында қойыңыз (Deploy -> Web app URL)
 // Мысал: const SUBMIT_URL = "https://script.google.com/macros/s/....../exec";
-const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzxGFtD5WonkTBV7P6R9GsJ4x9YLKfq-OKKR1kO6IXRraB22TawD8rPfEbV3TWIvzBr/exec";
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbwWlduv_GqJCRZPtp-C3bwwStBYkS1XXaEZCVYDDJf-G5eXdOmzflKQzxRxWouQrzg/exec";
 
 // 2) (Қаласаңыз) байланыс үшін мұғалімнің email/telegram
 const TEACHER_CONTACT = "Мұғалімге байланыс: ...";
