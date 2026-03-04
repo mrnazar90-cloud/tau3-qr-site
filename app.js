@@ -149,15 +149,19 @@
   }
 
   // Fire-and-forget start registration on server (for strict server-side enforcement)
-  async function registerStartOnServer(payload){
-    try {
-      if (typeof SUBMIT_URL === "undefined" || !SUBMIT_URL) return;
-await fetch(SUBMIT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  body: JSON.stringify({ action:"start", ...payload })
-});
+async function registerStartOnServer(payload){
+  try {
+    if (typeof SUBMIT_URL === "undefined" || !SUBMIT_URL) return;
 
+    await fetch(SUBMIT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify({ action:"start", ...payload })
+    });
+  } catch (e) {
+    // ignore
+  }
+}
 submitStatus.textContent = "✅ Жіберілді. Егер журналда шықпаса, файл көлемін кішірейтіңіз.";
       });
     } catch {}
@@ -350,15 +354,12 @@ submitStatus.textContent = "✅ Жіберілді. Егер журналда ш
       };
 
       const resp = await fetch(SUBMIT_URL, {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
+  method: "POST",
+  mode: "no-cors",
+  body: JSON.stringify(payload)
+});
 
-      const json = await resp.json();
-      if (!json.ok) throw new Error(json.error || "Қате");
-
-      submitStatus.textContent = "✅ Жіберілді. Рахмет!";
+submitStatus.textContent = "✅ Жіберілді. Рахмет!";
 
       const box = document.getElementById("theoryAnswerBox");
       if (box) box.hidden = false;
