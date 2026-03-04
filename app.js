@@ -1,3 +1,8 @@
+// app.js (FULL)
+
+// Барлық config айнымалылар config.js ішінен келеді:
+// SUBMIT_URL, TEACHER_CONTACT, DEADLINE_ISO, SESSION_MINUTES
+
 (function () {
   const $ = (id) => document.getElementById(id);
 
